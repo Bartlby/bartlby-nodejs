@@ -38,9 +38,12 @@ void BTLCore::Init(Handle<Object> target) {
 
     // Add all prototype methods, getters and setters here.
     NODE_SET_PROTOTYPE_METHOD(constructor, "CFG", Value);
-
     NODE_SET_PROTOTYPE_METHOD(constructor, "getService", getService);
     NODE_SET_PROTOTYPE_METHOD(constructor, "getInfo", getInfo);
+
+    
+    NODE_SET_PROTOTYPE_METHOD(constructor, "addService", addService);
+
 
     NODE_SET_PROTOTYPE_METHOD(constructor, "close", CoreClose);
 
@@ -79,6 +82,14 @@ Handle<Value> BTLCore::New(const Arguments& args) {
 
     return args.This();
 }
+Handle<Value> BTLCore::addService(const Arguments& args) {
+    HandleScope scope;
+    Local<Object> obj = args[0]->ToObject();
+    
+
+    return scope.Close(obj->Get(String::New("service_name"))->ToString());
+ }
+
 Handle<Value> BTLCore::getInfo(const Arguments& args) {
     HandleScope scope;
     Local<Object> return_obj = Object::New();

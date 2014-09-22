@@ -14,3 +14,13 @@ console.log(info);
 obj.close();
 
 
+
+
+
+var add=obj.addService({
+	"service_name": "Name",
+	"server_id": 2
+
+});
+
+console.log(add);
