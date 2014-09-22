@@ -16,13 +16,16 @@ public:
     static void Init(v8::Handle<v8::Object> target);
 
 protected:
-    MyObject(int val);
+    MyObject(char * cfg);
 
     static v8::Handle<v8::Value> New(const v8::Arguments& args);
     static v8::Handle<v8::Value> Value(const v8::Arguments& args);
 
     // Your own object variables here
-    int value_;
+    char * cfg_;
 };
+
+
+
 
 #endif

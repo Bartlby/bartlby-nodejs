@@ -1,5 +1,5 @@
 var bartlby = require('./build/Release/bartlby');
 
-var obj = new bartlby.MyObject(42);
-console.warn(obj);
-console.warn(obj.value());
+var obj = new bartlby.Instance("1.cfg");
+console.log(obj);
+console.log(obj.CFG());
