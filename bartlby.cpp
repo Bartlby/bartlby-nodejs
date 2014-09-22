@@ -36,6 +36,8 @@ void MyObject::Init(Handle<Object> target) {
     // Add all prototype methods, getters and setters here.
     NODE_SET_PROTOTYPE_METHOD(constructor, "CFG", Value);
 
+    NODE_SET_PROTOTYPE_METHOD(constructor, "getService", getService);
+
     // This has to be last, otherwise the properties won't show up on the
     // object in JavaScript.
     target->Set(name, constructor->GetFunction());
@@ -67,6 +69,18 @@ Handle<Value> MyObject::New(const Arguments& args) {
     return args.This();
 }
 
+Handle<Value> MyObject::getService(const Arguments& args) {
+    HandleScope scope;
+    Local<Object> return_obj = Object::New();
+
+    // Retrieves the pointer to the wrapped object instance.
+    MyObject* obj = ObjectWrap::Unwrap<MyObject>(args.This());
+
+    return_obj->Set(v8::String::NewSymbol("service_id"),Integer::New(123));
+    return_obj->Set(v8::String::NewSymbol("service_name"),String::New("asdf"));
+
+    return scope.Close(return_obj);
+}
 
 Handle<Value> MyObject::Value(const Arguments& args) {
     HandleScope scope;

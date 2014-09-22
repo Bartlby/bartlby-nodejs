@@ -20,6 +20,7 @@ protected:
 
     static v8::Handle<v8::Value> New(const v8::Arguments& args);
     static v8::Handle<v8::Value> Value(const v8::Arguments& args);
+    static v8::Handle<v8::Value> getService(const v8::Arguments& args);
 
     // Your own object variables here
     char * cfg_;
