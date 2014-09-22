@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "bartlby",
-      "sources": [ "bartlby.cpp" ]
+      "sources": [ "bartlby.cpp" ],
     }
   ]
 }
