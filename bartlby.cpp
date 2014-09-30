@@ -4,7 +4,10 @@
 
 
 #include <node.h>
+#include <nan.h>
 #include "bartlby.hpp"
+
+
 
 
 
@@ -12,8 +15,8 @@ using namespace v8;
 
 static char * dlmsg;
 
-Persistent<FunctionTemplate> BTLCore::constructor;
-
+static v8::Persistent<v8::FunctionTemplate> BTLCore::constructor;
+    
 
 static char *TO_CHAR(v8::Handle<v8::Value> val) {
     v8::String::Utf8Value utf8(val->ToString());
@@ -26,30 +29,32 @@ static char *TO_CHAR(v8::Handle<v8::Value> val) {
 }
 
 void BTLCore::Init(Handle<Object> target) {
-    HandleScope scope;
+    NanScope();
 
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-    Local<String> name = String::NewSymbol("Instance");
 
-    constructor = Persistent<FunctionTemplate>::New(tpl);
-    // ObjectWrap uses the first internal field to store the wrapped pointer.
-    constructor->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor->SetClassName(name);
+    v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(New);
+    Local<String> name = NanNew<String>("Instance");
+
+
+
+    NanAssignPersistent(constructor, tpl);
+    tpl->SetClassName(NanNew<v8::String>("constructor"));
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     // Add all prototype methods, getters and setters here.
-    NODE_SET_PROTOTYPE_METHOD(constructor, "CFG", Value);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "getService", getService);
-    NODE_SET_PROTOTYPE_METHOD(constructor, "getInfo", getInfo);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "CFG", Value);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getService", getService);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "getInfo", getInfo);
 
     
-    NODE_SET_PROTOTYPE_METHOD(constructor, "addService", addService);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "addService", addService);
 
 
-    NODE_SET_PROTOTYPE_METHOD(constructor, "close", CoreClose);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "close", CoreClose);
 
     // This has to be last, otherwise the properties won't show up on the
     // object in JavaScript.
-    target->Set(name, constructor->GetFunction());
+    target->Set(name, tpl->GetFunction());
 }
 
 BTLCore::BTLCore(char * cfg)
@@ -57,18 +62,15 @@ BTLCore::BTLCore(char * cfg)
       cfg_(cfg) {}
 
 
-Handle<Value> BTLCore::New(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTLCore::New) {
+    NanScope();
 
     if (!args.IsConstructCall()) {
-        return ThrowException(Exception::TypeError(
-            String::New("Use the new operator to create instances of this object."))
-        );
+        return NanThrowTypeError("ee");
     }
 
     if (args.Length() < 1) {
-        return ThrowException(Exception::TypeError(
-            String::New("First argument must be a number")));
+        return NanThrowTypeError("First argument must be a number");
     }
 
     // Creates a new instance object of this type and wraps it.
@@ -82,17 +84,17 @@ Handle<Value> BTLCore::New(const Arguments& args) {
 
     return args.This();
 }
-Handle<Value> BTLCore::addService(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTLCore::addService) {
+    NanScope();
     Local<Object> obj = args[0]->ToObject();
     
 
-    return scope.Close(obj->Get(String::New("service_name"))->ToString());
+    NanReturnValue(obj->Get(NanNew<v8::String>("service_name"))->ToString());
  }
 
-Handle<Value> BTLCore::getInfo(const Arguments& args) {
-    HandleScope scope;
-    Local<Object> return_obj = Object::New();
+NAN_METHOD(BTLCore::getInfo) {
+    NanScope();
+    Local<Object> return_obj = NanNew<Object>();
 
     char * (*GetAutor)();
     char * (*GetVersion)();
@@ -120,15 +122,15 @@ Handle<Value> BTLCore::getInfo(const Arguments& args) {
 
 
 
-    return_obj->Set(v8::String::NewSymbol("autor"),String::New(GetAutorStr));
-    return_obj->Set(v8::String::NewSymbol("version"),String::New(GetVersionStr));
-    return_obj->Set(v8::String::NewSymbol("name"),String::New(GetNameStr));
+    //return_obj->Set(NanNew<v8::String>("autor"),NanNew<v8::String>(GetAutorStr));
+    return_obj->Set(NanNew<v8::String>("version"),NanNew<v8::String>(GetVersionStr));
+    return_obj->Set(NanNew<v8::String>("name"),NanNew<v8::String>(GetNameStr));
 
     if(obj->shm_addr_ != NULL) {
         shm_hdr=(struct shm_header *)(void *)obj->shm_addr_;
-        return_obj->Set(v8::String::NewSymbol("services"),Integer::New(shm_hdr->svccount));
-        return_obj->Set(v8::String::NewSymbol("workers"),Integer::New(shm_hdr->wrkcount));
-        return_obj->Set(v8::String::NewSymbol("version"),String::New(shm_hdr->version));
+        return_obj->Set(NanNew<v8::String>("services"),NanNew<v8::Integer>(shm_hdr->svccount));
+        return_obj->Set(NanNew<v8::String>("workers"),NanNew<v8::Integer>(shm_hdr->wrkcount));
+        return_obj->Set(NanNew<v8::String>("version"),NanNew<v8::String>(shm_hdr->version));
         
         
     } else {
@@ -143,13 +145,13 @@ Handle<Value> BTLCore::getInfo(const Arguments& args) {
     free(GetVersionStr);
     free(GetNameStr);
 
-    return scope.Close(return_obj);
+    NanReturnValue(return_obj);
 }
 
 
-Handle<Value> BTLCore::CoreClose(const Arguments& args) {
-    HandleScope scope;
-    Local<Object> return_obj = Object::New();
+NAN_METHOD(BTLCore::CoreClose) {
+    NanScope();
+    Local<Object> return_obj = NanNew<v8::Object>();
 
 
     // Retrieves the pointer to the wrapped object instance.
@@ -161,29 +163,29 @@ Handle<Value> BTLCore::CoreClose(const Arguments& args) {
     shmdt(obj->shm_addr_);   
     if(obj->soHandle_ != NULL) dlclose(obj->soHandle_);
 
-    return scope.Close(return_obj);
+    NanReturnValue(return_obj);
 }
 
-Handle<Value> BTLCore::getService(const Arguments& args) {
-    HandleScope scope;
-    Local<Object> return_obj = Object::New();
+NAN_METHOD(BTLCore::getService) {
+    NanScope();
+    Local<Object> return_obj = NanNew<v8::Object>();
 
     // Retrieves the pointer to the wrapped object instance.
     BTLCore* obj = ObjectWrap::Unwrap<BTLCore>(args.This());
 
-    return_obj->Set(v8::String::NewSymbol("service_id"),Integer::New(123));
-    return_obj->Set(v8::String::NewSymbol("service_name"),String::New("asdf"));
+    return_obj->Set(NanNew<v8::String>("service_id"),NanNew<v8::Integer>(123));
+    return_obj->Set(NanNew<v8::String>("service_name"),NanNew<v8::String>("asdf"));
 
-    return scope.Close(return_obj);
+    NanReturnValue(return_obj);
 }
 
-Handle<Value> BTLCore::Value(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTLCore::Value) {
+    NanScope();
 
     // Retrieves the pointer to the wrapped object instance.
     BTLCore* obj = ObjectWrap::Unwrap<BTLCore>(args.This());
 
-    return scope.Close(String::New(obj->cfg_));
+    NanReturnValue(NanNew<v8::String>(obj->cfg_));
 }
 
 

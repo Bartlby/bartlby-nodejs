@@ -18,8 +18,8 @@ void * bartlby_get_sohandle(char * cfgfile);
 
 #define LOAD_SYMBOL(x,y,z) 	x=dlsym(y, z); \
     	if((dlmsg=dlerror()) != NULL) { \
-					ThrowException(Exception::TypeError(String::New(dlmsg))); \
-    				return scope.Close(Undefined()); \
+					NanThrowTypeError("ee"); \
+    				NanReturnValue(0); \
     	}
     	
 

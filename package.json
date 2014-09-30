@@ -1,5 +1,14 @@
 {
     "name": "bartlby",
     "version": "1.0.0",
-    "main": "./build/Release/bartlby"
+    "main": "./build/Release/bartlby",
+    "repository": {
+    "type": "git",
+    "url": "http://github.com/Bartlby/bartlby-nodejs.git"
+  	},
+     "dependencies": {
+    	"bindings": "~1.1.1",
+    	"node-gyp": "~0.10.10",
+    	"nan": "~1.3.0"
+  	}
 }

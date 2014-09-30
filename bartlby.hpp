@@ -2,6 +2,7 @@
 #define MODULENAME_HPP
 
 #include <node.h>
+#include <nan.h>
 #include "bartlby_core.h"
 
 
@@ -19,12 +20,12 @@ public:
 protected:
     BTLCore(char * cfg);
 
-    static v8::Handle<v8::Value> New(const v8::Arguments& args);
-    static v8::Handle<v8::Value> Value(const v8::Arguments& args);
-    static v8::Handle<v8::Value> getService(const v8::Arguments& args);
-    static v8::Handle<v8::Value> addService(const v8::Arguments& args);
-    static v8::Handle<v8::Value> getInfo(const v8::Arguments& args);
-    static v8::Handle<v8::Value> CoreClose(const v8::Arguments& args);
+    static NAN_METHOD( New);
+    static NAN_METHOD( Value);
+    static NAN_METHOD( getService);
+    static NAN_METHOD( addService);
+    static NAN_METHOD( getInfo);
+    static NAN_METHOD( CoreClose);
 
 
     // Your own object variables here
